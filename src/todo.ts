@@ -1,3 +1,10 @@
+import {v4 as uuidv4} from 'uuid';
+
+let myuuid = uuidv4();
+
+console.log('Your UUID is: ' + myuuid);
+
+
 const todoInput = document.getElementById("todo-input") as HTMLInputElement;
 const addBtn = document.getElementById("add-btn") as HTMLButtonElement;
 const todoListContainer = document.getElementById(
