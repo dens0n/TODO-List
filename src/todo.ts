@@ -31,8 +31,9 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
-
+//funktion som lägger till alla listelement i ul listan.
 function addTodoItem(todo: Todo) {
+  //skapa HTML element som behövs
   const li = document.createElement("li") as HTMLLIElement;
   const div = document.createElement("div") as HTMLDivElement;
   const checkbox = document.createElement("input") as HTMLInputElement;
@@ -40,18 +41,18 @@ function addTodoItem(todo: Todo) {
   const trashBtn = document.createElement("button") as HTMLButtonElement;
   const trashImg = document.createElement("img") as HTMLImageElement;
 
-  //ge varje listitem ett id
+  //ge varje listitem ett unikt id
   li.id = todo.id;
 
-  //klar-knappen
+  //"klar-knappen"
   checkbox.type = "checkbox";
   checkbox.classList.add("checkbox");
   checkbox.checked = todo.done;
   //eventlistener som uppdaterar true or false på checkboxen i local storage
   checkbox.addEventListener("change", () => {
     todo.done = checkbox.checked;
-    saveTodo();
     label.style.textDecoration = todo.done ? "line-through" : "none";
+    saveTodo();
   });
 
   //texten
@@ -92,15 +93,21 @@ function loadTodo(): Todo[] {
 }
 
 function removeTodoItem(todoId: string) {
-  // filter uppdaterar todolist med alla som inte har samma id som den man vill ta bort
-  todoList = todoList.filter((todo) => todo.id !== todoId);
-
-  // spara den uppdaterade listan till local storage
-  saveTodo();
-
-  // tar bort den valda todon från html
   const liToRemove = document.getElementById(todoId);
+
   if (liToRemove) {
-    liToRemove.remove();
+    // transition när elementet tas bort
+    liToRemove.classList.add("removing");
+
+    setTimeout(() => {
+      // Tar bort elementet från HTML
+      liToRemove.remove();
+
+      // filter uppdaterar todolist med alla som inte har samma id som den man vill ta bort
+      todoList = todoList.filter((todo) => todo.id !== todoId);
+
+      // spara den uppdaterade listan till local storage
+      saveTodo();
+    }, 300);
   }
 }
