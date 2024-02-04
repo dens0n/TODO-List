@@ -31,6 +31,7 @@ form.addEventListener("submit", (e) => {
     input.value = "";
   }
 });
+
 //funktion som lägger till alla listelement i ul listan.
 function addTodoItem(todo: Todo) {
   //skapa HTML element som behövs
@@ -77,6 +78,7 @@ function addTodoItem(todo: Todo) {
   list.appendChild(li);
 }
 
+//Sparar ner de todos som finns i listan till local storage
 function saveTodo() {
   localStorage.setItem("TODOS", JSON.stringify(todoList));
 }
@@ -92,6 +94,7 @@ function loadTodo(): Todo[] {
   }
 }
 
+//raderar den todo man vill ta bort
 function removeTodoItem(todoId: string) {
   const liToRemove = document.getElementById(todoId);
 
