@@ -4,7 +4,6 @@ type Todo = {
   id: string;
   text: string;
   done: boolean;
-  date: Date;
 };
 
 const list = document.getElementById("todo-list-container") as HTMLUListElement;
@@ -24,18 +23,16 @@ form.addEventListener("submit", (e) => {
       id: uuidv4(),
       text: input.value,
       done: false,
-      date: new Date(),
     };
 
     todoList.push(newTodo);
     saveTodo();
     addTodoItem(newTodo);
     input.value = "";
-    console.log(todoList);
   }
 });
 
-function addTodoItem(newTodo: Todo) {
+function addTodoItem(todo: Todo) {
   const li = document.createElement("li") as HTMLLIElement;
   const div = document.createElement("div") as HTMLDivElement;
   const checkbox = document.createElement("input") as HTMLInputElement;
@@ -44,40 +41,46 @@ function addTodoItem(newTodo: Todo) {
   const trashImg = document.createElement("img") as HTMLImageElement;
 
   //ge varje listitem ett id
-  li.id = newTodo.id;
+  li.id = todo.id;
 
+  //klar-knappen
   checkbox.type = "checkbox";
   checkbox.classList.add("checkbox");
+  checkbox.checked = todo.done;
+  //eventlistener som uppdaterar true or false på checkboxen i local storage
   checkbox.addEventListener("change", () => {
-    newTodo.done = checkbox.checked;
+    todo.done = checkbox.checked;
     saveTodo();
+    label.style.textDecoration = todo.done ? "line-through" : "none";
   });
 
-  label.setAttribute("for", newTodo.id);
-  label.innerText = newTodo.text;
+  //texten
+  label.setAttribute("for", todo.id);
+  label.innerText = todo.text;
+  label.style.textDecoration = todo.done ? "line-through" : "none";
 
+  //raderaknappen
   trashBtn.classList.add("trash-btn");
-
   trashImg.src = "src/images/bin.png";
   trashImg.alt = "trashcan";
   trashImg.width = 20;
+  trashBtn.addEventListener("click", () => {
+    removeTodoItem(todo.id);
+  });
 
   trashBtn.appendChild(trashImg);
-
   div.appendChild(checkbox);
   div.appendChild(label);
-
   li.appendChild(div);
   li.appendChild(trashBtn);
-
   list.appendChild(li);
-  console.log(li);
 }
 
 function saveTodo() {
   localStorage.setItem("TODOS", JSON.stringify(todoList));
 }
 
+//laddar sparade todos från local storage och om ingen finns sparad så skickas en tom lista
 function loadTodo(): Todo[] {
   const storedTodos = localStorage.getItem("TODOS");
 
@@ -85,5 +88,19 @@ function loadTodo(): Todo[] {
     return [];
   } else {
     return JSON.parse(storedTodos) as Todo[];
+  }
+}
+
+function removeTodoItem(todoId: string) {
+  // filter uppdaterar todolist med alla som inte har samma id som den man vill ta bort
+  todoList = todoList.filter((todo) => todo.id !== todoId);
+
+  // spara den uppdaterade listan till local storage
+  saveTodo();
+
+  // tar bort den valda todon från html
+  const liToRemove = document.getElementById(todoId);
+  if (liToRemove) {
+    liToRemove.remove();
   }
 }

@@ -74,6 +74,7 @@ li {
   background-color: transparent;
 }
 .trash-btn:hover {
+  cursor: pointer;
   border: none;
   background-color: transparent;
 }
