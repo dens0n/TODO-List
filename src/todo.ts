@@ -1,21 +1,41 @@
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
-let myuuid = uuidv4();
+type Todo = {
+  id: string;
+  text: string;
+  done: boolean;
+  date: Date;
+};
 
-console.log('Your UUID is: ' + myuuid);
+const list = document.getElementById("todo-list-container") as HTMLUListElement;
+const form = document.getElementById("input-container") as HTMLFormElement;
+const input = document.getElementById("todo-input") as HTMLInputElement;
 
+let todoList: Todo[] = loadTodo();
+todoList.forEach(addTodoItem);
 
-const todoInput = document.getElementById("todo-input") as HTMLInputElement;
-const addBtn = document.getElementById("add-btn") as HTMLButtonElement;
-const todoListContainer = document.getElementById(
-  "todo-list-container"
-) as HTMLUListElement;
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
 
-let todoList: string[] = [];
-let counter = 1;
+  if (input.value === "" || input.value === null) {
+    return;
+  } else {
+    const newTodo: Todo = {
+      id: uuidv4(),
+      text: input.value,
+      done: false,
+      date: new Date(),
+    };
 
-function addToTodoList(value: string) {
-  //skapa elementen
+    todoList.push(newTodo);
+    saveTodo();
+    addTodoItem(newTodo);
+    input.value = "";
+    console.log(todoList);
+  }
+});
+
+function addTodoItem(newTodo: Todo) {
   const li = document.createElement("li") as HTMLLIElement;
   const div = document.createElement("div") as HTMLDivElement;
   const checkbox = document.createElement("input") as HTMLInputElement;
@@ -24,14 +44,17 @@ function addToTodoList(value: string) {
   const trashImg = document.createElement("img") as HTMLImageElement;
 
   //ge varje listitem ett id
-  const itemId = `${counter++}`;
-  li.id = itemId;
+  li.id = newTodo.id;
 
   checkbox.type = "checkbox";
   checkbox.classList.add("checkbox");
+  checkbox.addEventListener("change", () => {
+    newTodo.done = checkbox.checked;
+    saveTodo();
+  });
 
-  label.setAttribute("for", itemId);
-  label.innerText = value;
+  label.setAttribute("for", newTodo.id);
+  label.innerText = newTodo.text;
 
   trashBtn.classList.add("trash-btn");
 
@@ -47,38 +70,20 @@ function addToTodoList(value: string) {
   li.appendChild(div);
   li.appendChild(trashBtn);
 
-  todoListContainer.appendChild(li);
-
-  //checkbox eventlistener ifall todo är markerad
-  checkbox.addEventListener("change", () => {
-    // togglar ett sträck över texten
-    if (checkbox.checked) {
-      label.style.textDecoration = "line-through";
-      moveItemToBottom(li);
-    } else {
-      label.style.textDecoration = "none";
-    }
-  });
-
-  // eventlistener för att radera ett list item
-  trashBtn.addEventListener("click", () => {
-    todoListContainer.removeChild(li);
-  });
+  list.appendChild(li);
+  console.log(li);
 }
 
-function moveItemToBottom(item: HTMLLIElement) {
-  // flytter item till botten
-  todoListContainer.appendChild(item);
+function saveTodo() {
+  localStorage.setItem("TODOS", JSON.stringify(todoList));
 }
 
-addBtn.addEventListener("click", () => {
-  if (todoInput.value === "") {
-    return;
+function loadTodo(): Todo[] {
+  const storedTodos = localStorage.getItem("TODOS");
+
+  if (!storedTodos) {
+    return [];
   } else {
-    todoList.push(todoInput.value);
-
-    addToTodoList(todoInput.value);
-
-    todoInput.value = "";
+    return JSON.parse(storedTodos) as Todo[];
   }
-});
+}
