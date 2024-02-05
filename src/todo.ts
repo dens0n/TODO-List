@@ -9,6 +9,7 @@ type Todo = {
 const list = document.getElementById("todo-list-container") as HTMLUListElement;
 const form = document.getElementById("input-container") as HTMLFormElement;
 const input = document.getElementById("todo-input") as HTMLInputElement;
+const clearBtn = document.getElementById("clear") as HTMLButtonElement;
 
 let todoList: Todo[] = loadTodo();
 todoList.forEach(addTodoItem);
@@ -30,6 +31,23 @@ form.addEventListener("submit", (e) => {
     addTodoItem(newTodo);
     input.value = "";
   }
+});
+
+clearBtn.addEventListener("click", ()=>{
+  // rensar local storage
+  localStorage.clear();
+  
+  // tar bort alla listelement från ul listan
+  while (list.firstChild) {
+    list.removeChild(list.firstChild);
+  }
+  
+  // sätter TodoList till en tom array
+  todoList = [];
+  
+  // Sparar den tomma listan till local storage
+  saveTodo();
+  
 });
 
 //funktion som lägger till alla listelement i ul listan.
@@ -58,6 +76,11 @@ function addTodoItem(todo: Todo) {
 
   //texten
   label.setAttribute("for", todo.id);
+  label.contentEditable = "true";
+  label.addEventListener("input", () => {
+    todo.text = label.innerText;
+    saveTodo();
+  });
   label.innerText = todo.text;
   label.style.textDecoration = todo.done ? "line-through" : "none";
 
